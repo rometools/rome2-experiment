@@ -10,15 +10,7 @@
     <relativePath>../</relativePath>
   </parent>
 
-  <artifactId>core</artifactId>
+  <artifactId>common</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>jar</packaging>
-
-  <dependencies>
-    <dependency>
-      <groupId>com.rometools.rome2.prototype</groupId>
-      <artifactId>common</artifactId>
-      <version>0.0.1-SNAPSHOT</version>
-    </dependency>
-  </dependencies>
 </project>

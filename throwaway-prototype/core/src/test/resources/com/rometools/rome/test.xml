@@ -1,12 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0">
   <channel>
-    <title>test-feed-title</title>
+    <title>Test feed title</title>
+    <description>Test feed description</description>
+    <image>
+      <url>https://test.example.com/image.png</url>
+    </image>
     <item>
-      <title>test-item-title-1</title>
+      <title>Test item title 1</title>
+      <description>Test item description 1</description>
+      <link>https://test.example.com/item-link-1</link>
+      <enclosure url="https://test.example.com/audio-1.ogg" type="audio/ogg" length="1024"/>
     </item>
     <item>
-      <title>test-item-title-2</title>
+      <title>Test item title 2</title>
+      <description>Test item description 2</description>
+      <link>https://test.example.com/item-link-2</link>
+      <enclosure url="https://test.example.com/audio-2.ogg" type="audio/ogg" length="2048"/>
     </item>
   </channel>
 </rss>

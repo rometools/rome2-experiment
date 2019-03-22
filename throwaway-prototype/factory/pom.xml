@@ -10,7 +10,7 @@
     <relativePath>../</relativePath>
   </parent>
 
-  <artifactId>core</artifactId>
+  <artifactId>factory</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>jar</packaging>
 
@@ -21,4 +21,25 @@
       <version>0.0.1-SNAPSHOT</version>
     </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>java</goal>
+            </goals>
+            <configuration>
+              <mainClass>com.rometools.rome.factory.Generate</mainClass>
+              <arguments>${project.basedir}</arguments>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 </project>
