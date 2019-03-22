@@ -1,7 +1,8 @@
 package com.rometools.rome;
 
 import com.google.common.io.ByteStreams;
-import com.rometools.rome.model.rss.Feed;
+import com.rometools.rome.model.Feed;
+import com.rometools.rome.xml.XmlParser;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -30,7 +31,7 @@ public class Rome {
   }
 
   public Feed read(byte[] source) {
-    return null;
+    return new XmlParser(source).parse();
   }
 
   public Feed read(String source) {
