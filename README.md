@@ -2,7 +2,6 @@
 
 This is a temporary repository for initial discussions and development of the new version of [Rome](https://github.com/rometools/rome). It will be merged into the main repository once we're ready to ship an alpha version.
 
-
 ## Why exactly are we doing this?
 See https://github.com/rometools/rome/issues/353 for the explanation and a rough plan.
 
@@ -20,3 +19,30 @@ See https://github.com/rometools/rome/issues/353 for the explanation and a rough
 
 ### Prototype
  - [x] Initial suggestion ([#10](https://github.com/rometools/rome2/issues/10))
+
+### Try it out
+
+See [RomeTest.java](throwaway-prototype/core/src/test/java/com/rometools/rome/RomeTest.java) for general overview of the functionality implemented so far.
+
+Install locally:
+```
+git clone git@github.com:rometools/rome2.git
+cd rome2/throwaway-prototype
+mvn install
+```
+
+Add the dependency to your project:
+```
+<dependency>
+  <groupId>com.rometools.rome2.prototype</groupId>
+  <artifactId>core</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+</dependency>
+```
+
+Use it:
+```
+byte[] source = ...
+Feed feed = Rome.minimal().read(source);
+System.out.println(feed.getTitle());
+```
