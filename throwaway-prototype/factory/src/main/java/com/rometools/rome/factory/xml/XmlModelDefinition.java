@@ -2,6 +2,7 @@ package com.rometools.rome.factory.xml;
 
 import com.rometools.rome.common.parser.Parser;
 import com.rometools.rome.common.xml.XmlPath;
+import com.rometools.rome.factory.generator.ModelPath;
 import com.rometools.rome.factory.generator.OneOrMany;
 import java.util.HashSet;
 import java.util.Set;
@@ -49,14 +50,14 @@ public class XmlModelDefinition {
         String xmlPath, String modelLocation, Parser<?> parser, OneOrMany oneOrMany) {
       dataPoints.add(
           new DataPoint(
-              XmlPath.create(xmlPath), ModelLocation.create(modelLocation), parser, oneOrMany));
+              XmlPath.create(xmlPath), ModelPath.create(modelLocation), parser, oneOrMany));
       return this;
     }
 
     public Builder addEntityBinding(String xmlPath, String modelLocation, OneOrMany oneOrMany) {
       entityBindings.add(
           new EntityBinding(
-              XmlPath.create(xmlPath), ModelLocation.create(modelLocation), oneOrMany));
+              XmlPath.create(xmlPath), ModelPath.create(modelLocation), oneOrMany));
       return this;
     }
 

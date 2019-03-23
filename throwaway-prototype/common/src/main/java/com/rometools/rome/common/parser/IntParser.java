@@ -4,6 +4,8 @@ import com.rometools.rome.common.value.IntValue;
 
 public class IntParser implements Parser<IntValue> {
 
+  public static final IntParser INSTANCE = new IntParser();
+
   @Override
   public Class<IntValue> getResultClass() {
     return IntValue.class;

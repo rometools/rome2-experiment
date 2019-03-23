@@ -7,6 +7,7 @@ import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import java.time.Instant;
+import java.util.TreeSet;
 import javax.annotation.Generated;
 import javax.lang.model.element.Modifier;
 
@@ -54,8 +55,10 @@ public class EntityGenerator {
             .addStatement("$T result = new $T()", StringBuilder.class, StringBuilder.class)
             .addStatement("result.append($S)", "{");
 
+    TreeSet<Field> fields = new TreeSet<>(entity.getFields());
+
     boolean isFirst = true;
-    for (Field field : entity.getFields()) {
+    for (Field field : fields) {
       new FieldGenerator(
               modelGenerator,
               field,

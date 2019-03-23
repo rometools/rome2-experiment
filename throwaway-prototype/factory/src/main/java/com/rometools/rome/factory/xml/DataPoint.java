@@ -2,19 +2,23 @@ package com.rometools.rome.factory.xml;
 
 import com.rometools.rome.common.parser.Parser;
 import com.rometools.rome.common.xml.XmlPath;
+import com.rometools.rome.factory.generator.ModelPath;
 import com.rometools.rome.factory.generator.OneOrMany;
+import java.util.Comparator;
 
-public class DataPoint {
+public class DataPoint implements Comparable<DataPoint> {
+
+  private static final Comparator<DataPoint> COMPARATOR =
+      Comparator.comparing(DataPoint::getXmlPath).thenComparing(DataPoint::getModelPath);
 
   private XmlPath xmlPath;
-  private ModelLocation modelLocation;
+  private ModelPath modelPath;
   private Parser<?> parser;
   private OneOrMany oneOrMany;
 
-  public DataPoint(
-      XmlPath xmlPath, ModelLocation modelLocation, Parser<?> parser, OneOrMany oneOrMany) {
+  public DataPoint(XmlPath xmlPath, ModelPath modelPath, Parser<?> parser, OneOrMany oneOrMany) {
     this.xmlPath = xmlPath;
-    this.modelLocation = modelLocation;
+    this.modelPath = modelPath;
     this.parser = parser;
     this.oneOrMany = oneOrMany;
   }
@@ -23,8 +27,8 @@ public class DataPoint {
     return xmlPath;
   }
 
-  public ModelLocation getModelLocation() {
-    return modelLocation;
+  public ModelPath getModelPath() {
+    return modelPath;
   }
 
   public Parser<?> getParser() {
@@ -33,5 +37,10 @@ public class DataPoint {
 
   public OneOrMany getOneOrMany() {
     return oneOrMany;
+  }
+
+  @Override
+  public int compareTo(DataPoint other) {
+    return COMPARATOR.compare(this, other);
   }
 }

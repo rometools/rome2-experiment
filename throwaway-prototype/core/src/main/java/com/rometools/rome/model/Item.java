@@ -1,10 +1,12 @@
 package com.rometools.rome.model;
 
+import com.rometools.rome.common.value.DateTimeValue;
 import com.rometools.rome.common.value.StringValue;
 import java.lang.Object;
 import java.lang.Override;
 import java.lang.String;
 import java.lang.StringBuilder;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -12,22 +14,25 @@ import javax.annotation.Generated;
 
 @Generated(
     value = "com.rometools.rome.factory.generator.EntityGenerator",
-    date = "2019-03-22T07:00:47.734Z"
+    date = "2019-03-23T07:02:53.941Z"
 )
 public class Item {
   private final String description;
 
+  private final List<Enclosure> enclosureList;
+
   private final String link;
 
-  private final List<Enclosure> enclosureList;
+  private final ZonedDateTime published;
 
   private final String title;
 
-  Item(final String description, final String link, final List<Enclosure> enclosureList,
-      final String title) {
+  Item(final String description, final List<Enclosure> enclosureList, final String link,
+      final ZonedDateTime published, final String title) {
     this.description = description;
-    this.link = link;
     this.enclosureList = enclosureList;
+    this.link = link;
+    this.published = published;
     this.title = title;
   }
 
@@ -37,14 +42,6 @@ public class Item {
 
   public boolean hasDescription() {
     return description != null;
-  }
-
-  public StringValue getLink() {
-    return StringValue.ofNullable(link);
-  }
-
-  public boolean hasLink() {
-    return link != null;
   }
 
   public List<Enclosure> getEnclosureList() {
@@ -63,6 +60,22 @@ public class Item {
       return Enclosure.builder().build();
     }
     return enclosureList.get(0);
+  }
+
+  public StringValue getLink() {
+    return StringValue.ofNullable(link);
+  }
+
+  public boolean hasLink() {
+    return link != null;
+  }
+
+  public DateTimeValue getPublished() {
+    return DateTimeValue.ofNullable(published);
+  }
+
+  public boolean hasPublished() {
+    return published != null;
   }
 
   public StringValue getTitle() {
@@ -89,8 +102,9 @@ public class Item {
 
     Item that = (Item) other;
     return Objects.equals(description, that.description)
-        && Objects.equals(link, that.link)
         && Objects.equals(enclosureList, that.enclosureList)
+        && Objects.equals(link, that.link)
+        && Objects.equals(published, that.published)
         && Objects.equals(title, that.title);
   }
 
@@ -100,10 +114,12 @@ public class Item {
     result.append("{");
     result.append("\"description\":");
     result.append("\"" + description + "\"");
-    result.append(",\"link\":");
-    result.append("\"" + link + "\"");
     result.append(",\"enclosureList\":");
     result.append(String.valueOf(enclosureList));
+    result.append(",\"link\":");
+    result.append("\"" + link + "\"");
+    result.append(",\"published\":");
+    result.append(String.valueOf(published));
     result.append(",\"title\":");
     result.append("\"" + title + "\"");
     result.append("}");
@@ -113,9 +129,11 @@ public class Item {
   public static class Builder {
     private String description;
 
+    private List<Enclosure> enclosureList;
+
     private String link;
 
-    private List<Enclosure> enclosureList;
+    private ZonedDateTime published;
 
     private String title;
 
@@ -126,16 +144,6 @@ public class Item {
 
     public Builder clearDescription() {
       this.description = null;
-      return this;
-    }
-
-    public Builder setLink(final String link) {
-      this.link = link;
-      return this;
-    }
-
-    public Builder clearLink() {
-      this.link = null;
       return this;
     }
 
@@ -162,6 +170,26 @@ public class Item {
       return this;
     }
 
+    public Builder setLink(final String link) {
+      this.link = link;
+      return this;
+    }
+
+    public Builder clearLink() {
+      this.link = null;
+      return this;
+    }
+
+    public Builder setPublished(final ZonedDateTime published) {
+      this.published = published;
+      return this;
+    }
+
+    public Builder clearPublished() {
+      this.published = null;
+      return this;
+    }
+
     public Builder setTitle(final String title) {
       this.title = title;
       return this;
@@ -175,8 +203,9 @@ public class Item {
     public Item build() {
       return new Item(
         description,
-        link,
         enclosureList,
+        link,
+        published,
         title
       );
     }

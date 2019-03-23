@@ -1,10 +1,12 @@
 package com.rometools.rome.model;
 
+import com.rometools.rome.common.value.DateTimeValue;
 import com.rometools.rome.common.value.StringValue;
 import java.lang.Object;
 import java.lang.Override;
 import java.lang.String;
 import java.lang.StringBuilder;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -12,22 +14,34 @@ import javax.annotation.Generated;
 
 @Generated(
     value = "com.rometools.rome.factory.generator.EntityGenerator",
-    date = "2019-03-22T07:00:47.695Z"
+    date = "2019-03-23T07:02:53.899Z"
 )
 public class Feed {
+  private final String description;
+
   private final Image image;
 
   private final List<Item> itemList;
 
+  private final ZonedDateTime published;
+
   private final String title;
 
-  private final String description;
-
-  Feed(final Image image, final List<Item> itemList, final String title, final String description) {
+  Feed(final String description, final Image image, final List<Item> itemList,
+      final ZonedDateTime published, final String title) {
+    this.description = description;
     this.image = image;
     this.itemList = itemList;
+    this.published = published;
     this.title = title;
-    this.description = description;
+  }
+
+  public StringValue getDescription() {
+    return StringValue.ofNullable(description);
+  }
+
+  public boolean hasDescription() {
+    return description != null;
   }
 
   public Image getImage() {
@@ -59,20 +73,20 @@ public class Feed {
     return itemList.get(0);
   }
 
+  public DateTimeValue getPublished() {
+    return DateTimeValue.ofNullable(published);
+  }
+
+  public boolean hasPublished() {
+    return published != null;
+  }
+
   public StringValue getTitle() {
     return StringValue.ofNullable(title);
   }
 
   public boolean hasTitle() {
     return title != null;
-  }
-
-  public StringValue getDescription() {
-    return StringValue.ofNullable(description);
-  }
-
-  public boolean hasDescription() {
-    return description != null;
   }
 
   public static Builder builder() {
@@ -90,36 +104,51 @@ public class Feed {
     }
 
     Feed that = (Feed) other;
-    return Objects.equals(image, that.image)
+    return Objects.equals(description, that.description)
+        && Objects.equals(image, that.image)
         && Objects.equals(itemList, that.itemList)
-        && Objects.equals(title, that.title)
-        && Objects.equals(description, that.description);
+        && Objects.equals(published, that.published)
+        && Objects.equals(title, that.title);
   }
 
   @Override
   public String toString() {
     StringBuilder result = new StringBuilder();
     result.append("{");
-    result.append("\"image\":");
+    result.append("\"description\":");
+    result.append("\"" + description + "\"");
+    result.append(",\"image\":");
     result.append(String.valueOf(image));
     result.append(",\"itemList\":");
     result.append(String.valueOf(itemList));
+    result.append(",\"published\":");
+    result.append(String.valueOf(published));
     result.append(",\"title\":");
     result.append("\"" + title + "\"");
-    result.append(",\"description\":");
-    result.append("\"" + description + "\"");
     result.append("}");
     return result.toString();
   }
 
   public static class Builder {
+    private String description;
+
     private Image image;
 
     private List<Item> itemList;
 
+    private ZonedDateTime published;
+
     private String title;
 
-    private String description;
+    public Builder setDescription(final String description) {
+      this.description = description;
+      return this;
+    }
+
+    public Builder clearDescription() {
+      this.description = null;
+      return this;
+    }
 
     public Builder setImage(final Image image) {
       this.image = image;
@@ -154,6 +183,16 @@ public class Feed {
       return this;
     }
 
+    public Builder setPublished(final ZonedDateTime published) {
+      this.published = published;
+      return this;
+    }
+
+    public Builder clearPublished() {
+      this.published = null;
+      return this;
+    }
+
     public Builder setTitle(final String title) {
       this.title = title;
       return this;
@@ -164,22 +203,13 @@ public class Feed {
       return this;
     }
 
-    public Builder setDescription(final String description) {
-      this.description = description;
-      return this;
-    }
-
-    public Builder clearDescription() {
-      this.description = null;
-      return this;
-    }
-
     public Feed build() {
       return new Feed(
+        description,
         image,
         itemList,
-        title,
-        description
+        published,
+        title
       );
     }
   }

@@ -12,27 +12,27 @@ import javax.annotation.Generated;
 
 @Generated(
     value = "com.rometools.rome.factory.generator.EntityGenerator",
-    date = "2019-03-22T07:00:47.743Z"
+    date = "2019-03-23T07:02:53.931Z"
 )
 public class Enclosure {
-  private final String url;
+  private final Integer length;
 
   private final String type;
 
-  private final Integer length;
+  private final String url;
 
-  Enclosure(final String url, final String type, final Integer length) {
-    this.url = url;
-    this.type = type;
+  Enclosure(final Integer length, final String type, final String url) {
     this.length = length;
+    this.type = type;
+    this.url = url;
   }
 
-  public StringValue getUrl() {
-    return StringValue.ofNullable(url);
+  public IntValue getLength() {
+    return IntValue.ofNullable(length);
   }
 
-  public boolean hasUrl() {
-    return url != null;
+  public boolean hasLength() {
+    return length != null;
   }
 
   public StringValue getType() {
@@ -43,12 +43,12 @@ public class Enclosure {
     return type != null;
   }
 
-  public IntValue getLength() {
-    return IntValue.ofNullable(length);
+  public StringValue getUrl() {
+    return StringValue.ofNullable(url);
   }
 
-  public boolean hasLength() {
-    return length != null;
+  public boolean hasUrl() {
+    return url != null;
   }
 
   public static Builder builder() {
@@ -66,39 +66,39 @@ public class Enclosure {
     }
 
     Enclosure that = (Enclosure) other;
-    return Objects.equals(url, that.url)
+    return Objects.equals(length, that.length)
         && Objects.equals(type, that.type)
-        && Objects.equals(length, that.length);
+        && Objects.equals(url, that.url);
   }
 
   @Override
   public String toString() {
     StringBuilder result = new StringBuilder();
     result.append("{");
-    result.append("\"url\":");
-    result.append("\"" + url + "\"");
+    result.append("\"length\":");
+    result.append(String.valueOf(length));
     result.append(",\"type\":");
     result.append("\"" + type + "\"");
-    result.append(",\"length\":");
-    result.append(String.valueOf(length));
+    result.append(",\"url\":");
+    result.append("\"" + url + "\"");
     result.append("}");
     return result.toString();
   }
 
   public static class Builder {
-    private String url;
+    private Integer length;
 
     private String type;
 
-    private Integer length;
+    private String url;
 
-    public Builder setUrl(final String url) {
-      this.url = url;
+    public Builder setLength(final Integer length) {
+      this.length = length;
       return this;
     }
 
-    public Builder clearUrl() {
-      this.url = null;
+    public Builder clearLength() {
+      this.length = null;
       return this;
     }
 
@@ -112,21 +112,21 @@ public class Enclosure {
       return this;
     }
 
-    public Builder setLength(final Integer length) {
-      this.length = length;
+    public Builder setUrl(final String url) {
+      this.url = url;
       return this;
     }
 
-    public Builder clearLength() {
-      this.length = null;
+    public Builder clearUrl() {
+      this.url = null;
       return this;
     }
 
     public Enclosure build() {
       return new Enclosure(
-        url,
+        length,
         type,
-        length
+        url
       );
     }
   }

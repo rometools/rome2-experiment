@@ -1,6 +1,6 @@
 package com.rometools.rome.factory.generator;
 
-public class Field {
+public class Field implements Comparable<Field> {
 
   private String name;
   private Class<?> type;
@@ -38,5 +38,10 @@ public class Field {
 
   public boolean isEntity() {
     return type == null;
+  }
+
+  @Override
+  public int compareTo(Field other) {
+    return this.name.compareTo(other.name);
   }
 }

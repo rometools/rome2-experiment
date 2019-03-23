@@ -4,6 +4,8 @@ import com.rometools.rome.common.value.StringValue;
 
 public class StringParser implements Parser<StringValue> {
 
+  public static final StringParser INSTANCE = new StringParser();
+
   @Override
   public Class<StringValue> getResultClass() {
     return StringValue.class;

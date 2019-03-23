@@ -6,7 +6,6 @@ import static com.google.common.base.CaseFormat.UPPER_CAMEL;
 import com.rometools.rome.common.xml.XmlPath;
 import com.rometools.rome.factory.xml.DataPoint;
 import com.rometools.rome.factory.xml.EntityBinding;
-import com.rometools.rome.factory.xml.ModelLocation;
 import com.rometools.rome.factory.xml.XmlModelDefinition;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
@@ -21,6 +20,7 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeSet;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -42,9 +42,9 @@ public class ParserGenerator {
   }
 
   public void generate() {
-    Map<ModelLocation, XmlPath> modelPathToXmlPath =
+    Map<ModelPath, XmlPath> modelPathToXmlPath =
         model.getEntityBindings().stream()
-            .collect(Collectors.toMap(EntityBinding::getModelLocation, EntityBinding::getXmlPath));
+            .collect(Collectors.toMap(EntityBinding::getModelPath, EntityBinding::getXmlPath));
 
     TypeSpec.Builder type =
         TypeSpec.classBuilder(ClassName.get(PACKAGE, "GeneratedXmlBindings"))
@@ -112,58 +112,61 @@ public class ParserGenerator {
 
     CodeBlock.Builder staticBlock = CodeBlock.builder();
 
-    for (EntityBinding entityBinding : model.getEntityBindings()) {
+    TreeSet<EntityBinding> entityBindings = new TreeSet<>(model.getEntityBindings());
+
+    for (EntityBinding entityBinding : entityBindings) {
       staticBlock.addStatement(
           "BUILDER_MAPPING.put($T.create($S), $T::builder)",
           XmlPath.class,
           entityBinding.getXmlPath().toString(),
-          ClassName.get(MODEL_PACKAGE, simpleClassName(entityBinding.getModelLocation().name())));
+          ClassName.get(MODEL_PACKAGE, simpleClassName(entityBinding.getModelPath().name())));
 
       staticBlock.addStatement(
           "BUILD_MAPPING.put($T.create($S), b -> (($T.Builder) b).build())",
           XmlPath.class,
           entityBinding.getXmlPath().toString(),
-          ClassName.get(MODEL_PACKAGE, simpleClassName(entityBinding.getModelLocation().name())));
+          ClassName.get(MODEL_PACKAGE, simpleClassName(entityBinding.getModelPath().name())));
 
-      if (!entityBinding.getModelLocation().isTopLevel()) {
+      if (!entityBinding.getModelPath().isTopLevel()) {
         staticBlock.addStatement(
             "PARENT_MAPPING.put($T.create($S), $T.create($S))",
             XmlPath.class,
             entityBinding.getXmlPath().toString(),
             XmlPath.class,
-            modelPathToXmlPath.get(entityBinding.getModelLocation().parent()).toString());
+            modelPathToXmlPath.get(entityBinding.getModelPath().parent()).toString());
 
         staticBlock.addStatement(
             "SETTER_MAPPING.put($T.create($S), (b, v) -> (($T.Builder) b).$L(($T) v))",
             XmlPath.class,
             entityBinding.getXmlPath().toString(),
             ClassName.get(
-                MODEL_PACKAGE, simpleClassName(entityBinding.getModelLocation().parent().name())),
+                MODEL_PACKAGE, simpleClassName(entityBinding.getModelPath().parent().name())),
             joinNames(
                 entityBinding.getOneOrMany() == OneOrMany.ONE ? "set" : "add",
-                entityBinding.getModelLocation().name()),
-            ClassName.get(MODEL_PACKAGE, simpleClassName(entityBinding.getModelLocation().name())));
+                entityBinding.getModelPath().name()),
+            ClassName.get(MODEL_PACKAGE, simpleClassName(entityBinding.getModelPath().name())));
       }
     }
 
-    for (DataPoint dataPoint : model.getDataPoints()) {
+    TreeSet<DataPoint> dataPoints = new TreeSet<>(model.getDataPoints());
 
+    for (DataPoint dataPoint : dataPoints) {
       staticBlock.addStatement(
           "PARENT_MAPPING.put($T.create($S), $T.create($S))",
           XmlPath.class,
           dataPoint.getXmlPath().toString(),
           XmlPath.class,
-          modelPathToXmlPath.get(dataPoint.getModelLocation().parent()).toString());
+          modelPathToXmlPath.get(dataPoint.getModelPath().parent()).toString());
 
       staticBlock.addStatement(
           "SETTER_MAPPING.put($T.create($S), (b, v) -> (($T.Builder) b).$L(new $T().parse(($T) v).asNullable()))",
           XmlPath.class,
           dataPoint.getXmlPath().toString(),
           ClassName.get(
-              MODEL_PACKAGE, simpleClassName(dataPoint.getModelLocation().parent().name())),
+              MODEL_PACKAGE, simpleClassName(dataPoint.getModelPath().parent().name())),
           joinNames(
               dataPoint.getOneOrMany() == OneOrMany.ONE ? "set" : "add",
-              dataPoint.getModelLocation().name()),
+              dataPoint.getModelPath().name()),
           ClassName.get(dataPoint.getParser().getClass()),
           ClassName.get(String.class));
     }

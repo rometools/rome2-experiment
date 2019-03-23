@@ -3,10 +3,13 @@ package com.rometools.rome.common.xml;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
-public class XmlPath {
+public class XmlPath implements Comparable<XmlPath> {
+
+  private static final Comparator<XmlPath> COMPARATOR = Comparator.comparing(XmlPath::toString);
 
   public static final XmlPath ROOT = new XmlPath(Collections.emptyList(), false);
 
@@ -87,5 +90,10 @@ public class XmlPath {
     } else {
       return "/" + String.join("/", hierarchy);
     }
+  }
+
+  @Override
+  public int compareTo(XmlPath other) {
+    return COMPARATOR.compare(this, other);
   }
 }

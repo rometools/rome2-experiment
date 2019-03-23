@@ -10,7 +10,7 @@ import javax.annotation.Generated;
 
 @Generated(
     value = "com.rometools.rome.factory.generator.EntityGenerator",
-    date = "2019-03-22T07:00:47.726Z"
+    date = "2019-03-23T07:02:53.925Z"
 )
 public class Image {
   private final String url;
