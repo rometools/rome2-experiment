@@ -18,7 +18,22 @@ See https://github.com/rometools/rome/issues/353 for the explanation and a rough
  - [x] Absolute leniency ([#9](https://github.com/rometools/rome2/issues/9), decided: :+1:)
 
 ### Prototype
+
+See https://github.com/rometools/rome2/projects/1
+
  - [x] Initial suggestion ([#10](https://github.com/rometools/rome2/issues/10))
+ - [x] Code generation for main entities ([#12](https://github.com/rometools/rome2/issues/12))
+ - [x] Code generation for XML parser ([#13](https://github.com/rometools/rome2/issues/13))
+ - [ ] Json Feed parser ([#14](https://github.com/rometools/rome2/issues/14))
+ - [x] More fields of different types ([#15](https://github.com/rometools/rome2/issues/15))
+ - [ ] RSS writer ([#16](https://github.com/rometools/rome2/issues/16))
+ - [ ] Json Feed writer ([#17](https://github.com/rometools/rome2/issues/17))
+ - [ ] Support parsing one of older versions ([#18](https://github.com/rometools/rome2/issues/18))
+ - [ ] Extensions ([#19](https://github.com/rometools/rome2/issues/19))
+ - [ ] Features ([#20](https://github.com/rometools/rome2/issues/20))
+ - [ ] Rome 1 converter ([#21](https://github.com/rometools/rome2/issues/21))
+ - [ ] Separate artifact for Android ([#22](https://github.com/rometools/rome2/issues/22))
+ - [x] Atom parser ([#24](https://github.com/rometools/rome2/issues/24))
 
 ### Try it out
 
