@@ -1,12 +1,18 @@
 package com.rometools.rome.factory.generator;
 
-import static com.google.common.base.CaseFormat.LOWER_CAMEL;
-import static com.google.common.base.CaseFormat.UPPER_CAMEL;
+import static com.rometools.rome.factory.model.OneOrMany.MANY;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
+import com.rometools.rome.common.model.ModelPath;
+import com.rometools.rome.common.model.ModelTarget;
+import com.rometools.rome.common.xml.EntitySetup;
+import com.rometools.rome.common.xml.FieldSetup;
 import com.rometools.rome.common.xml.XmlPath;
-import com.rometools.rome.factory.xml.DataPoint;
-import com.rometools.rome.factory.xml.EntityBinding;
-import com.rometools.rome.factory.xml.XmlModelDefinition;
+import com.rometools.rome.factory.model.Models;
+import com.rometools.rome.factory.xml.XmlDataPoint;
+import com.rometools.rome.factory.xml.XmlModelBinding;
+import com.rometools.rome.factory.xml.XmlSchema;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
@@ -18,159 +24,186 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Collection;
+import java.util.Set;
 import java.util.TreeSet;
-import java.util.function.BiFunction;
-import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import javax.annotation.Generated;
+import javax.annotation.processing.Generated;
 import javax.lang.model.element.Modifier;
 
 public class ParserGenerator {
 
-  private static final String PACKAGE = "com.rometools.rome.xml";
-  private static final String MODEL_PACKAGE = "com.rometools.rome.model";
+  private static final String TARGET_PACKAGE = "com.rometools.rome.xml";
 
-  private final XmlModelDefinition model;
+  private final Set<XmlSchema> schemas;
   private final Path targetDirectory;
 
-  public ParserGenerator(XmlModelDefinition model, Path targetDirectory) {
-    this.model = model;
+  public ParserGenerator(Set<XmlSchema> schemas, Path targetDirectory) {
+    this.schemas = schemas;
     this.targetDirectory = targetDirectory;
   }
 
   public void generate() {
-    Map<ModelPath, XmlPath> modelPathToXmlPath =
-        model.getEntityBindings().stream()
-            .collect(Collectors.toMap(EntityBinding::getModelPath, EntityBinding::getXmlPath));
-
     TypeSpec.Builder type =
-        TypeSpec.classBuilder(ClassName.get(PACKAGE, "GeneratedXmlBindings"))
+        TypeSpec.classBuilder(ClassName.get(TARGET_PACKAGE, "GeneratedXmlBindings"))
             .addModifiers(Modifier.PUBLIC);
 
     type.addField(
         FieldSpec.builder(
                 ParameterizedTypeName.get(
-                    ClassName.get(Map.class),
+                    ClassName.get(Multimap.class),
                     ClassName.get(XmlPath.class),
                     ParameterizedTypeName.get(
-                        ClassName.get(Supplier.class), ClassName.get(Object.class))),
-                "BUILDER_MAPPING",
+                        ClassName.get(Supplier.class), ClassName.get(EntitySetup.class))),
+                "ENTITY_SETUP_MAPPING",
                 Modifier.PUBLIC,
                 Modifier.FINAL,
                 Modifier.STATIC)
-            .initializer("new $T<>()", HashMap.class)
+            .initializer("$T.create()", HashMultimap.class)
             .build());
 
     type.addField(
         FieldSpec.builder(
                 ParameterizedTypeName.get(
-                    ClassName.get(Map.class),
+                    ClassName.get(Multimap.class),
                     ClassName.get(XmlPath.class),
                     ParameterizedTypeName.get(
-                        ClassName.get(Function.class),
-                        ClassName.get(Object.class),
-                        ClassName.get(Object.class))),
-                "BUILD_MAPPING",
+                        ClassName.get(Supplier.class), ClassName.get(FieldSetup.class))),
+                "FIELD_SETUP_MAPPING",
                 Modifier.PUBLIC,
                 Modifier.FINAL,
                 Modifier.STATIC)
-            .initializer("new $T<>()", HashMap.class)
-            .build());
-
-    type.addField(
-        FieldSpec.builder(
-                ParameterizedTypeName.get(
-                    ClassName.get(Map.class),
-                    ClassName.get(XmlPath.class),
-                    ClassName.get(XmlPath.class)),
-                "PARENT_MAPPING",
-                Modifier.PUBLIC,
-                Modifier.FINAL,
-                Modifier.STATIC)
-            .initializer("new $T<>()", HashMap.class)
-            .build());
-
-    type.addField(
-        FieldSpec.builder(
-                ParameterizedTypeName.get(
-                    ClassName.get(Map.class),
-                    ClassName.get(XmlPath.class),
-                    ParameterizedTypeName.get(
-                        ClassName.get(BiFunction.class),
-                        ClassName.get(Object.class),
-                        ClassName.get(Object.class),
-                        ClassName.get(Object.class))),
-                "SETTER_MAPPING",
-                Modifier.PUBLIC,
-                Modifier.FINAL,
-                Modifier.STATIC)
-            .initializer("new $T<>()", HashMap.class)
+            .initializer("$T.create()", HashMultimap.class)
             .build());
 
     CodeBlock.Builder staticBlock = CodeBlock.builder();
 
-    TreeSet<EntityBinding> entityBindings = new TreeSet<>(model.getEntityBindings());
+    TreeSet<XmlModelBinding> xmlModelBindings =
+        schemas.stream()
+            .map(XmlSchema::getEntityBindings)
+            .flatMap(Collection::stream)
+            .collect(Collectors.toCollection(TreeSet::new));
 
-    for (EntityBinding entityBinding : entityBindings) {
-      staticBlock.addStatement(
-          "BUILDER_MAPPING.put($T.create($S), $T::builder)",
-          XmlPath.class,
-          entityBinding.getXmlPath().toString(),
-          ClassName.get(MODEL_PACKAGE, simpleClassName(entityBinding.getModelPath().name())));
+    for (XmlSchema schema : schemas) {
 
-      staticBlock.addStatement(
-          "BUILD_MAPPING.put($T.create($S), b -> (($T.Builder) b).build())",
-          XmlPath.class,
-          entityBinding.getXmlPath().toString(),
-          ClassName.get(MODEL_PACKAGE, simpleClassName(entityBinding.getModelPath().name())));
+      for (XmlModelBinding entityBinding : schema.getEntityBindings()) {
 
-      if (!entityBinding.getModelPath().isTopLevel()) {
-        staticBlock.addStatement(
-            "PARENT_MAPPING.put($T.create($S), $T.create($S))",
-            XmlPath.class,
-            entityBinding.getXmlPath().toString(),
-            XmlPath.class,
-            modelPathToXmlPath.get(entityBinding.getModelPath().parent()).toString());
+        CodeBlock.Builder entitySetup = CodeBlock.builder();
 
-        staticBlock.addStatement(
-            "SETTER_MAPPING.put($T.create($S), (b, v) -> (($T.Builder) b).$L(($T) v))",
-            XmlPath.class,
-            entityBinding.getXmlPath().toString(),
-            ClassName.get(
-                MODEL_PACKAGE, simpleClassName(entityBinding.getModelPath().parent().name())),
-            joinNames(
-                entityBinding.getOneOrMany() == OneOrMany.ONE ? "set" : "add",
-                entityBinding.getModelPath().name()),
-            ClassName.get(MODEL_PACKAGE, simpleClassName(entityBinding.getModelPath().name())));
+        entitySetup
+            .add("ENTITY_SETUP_MAPPING.put(\n")
+            .indent()
+            .indent()
+            .add("$T.create($S),\n", XmlPath.class, entityBinding.getXmlPath().toString())
+            .add("() ->\n")
+            .indent()
+            .indent();
+
+        if (entityBinding.getModelPath().isTopLevel()) {
+          entitySetup.add("$T.startTopLevel(\n", EntitySetup.class);
+        } else {
+          entitySetup.add("$T.start(\n", EntitySetup.class);
+        }
+
+        entitySetup.indent().indent();
+
+        entitySetup.add(
+            "new $T($S, $T.create($S)),\n",
+            ModelTarget.class,
+            schema.getTargetModel(),
+            ModelPath.class,
+            entityBinding.getModelPath().toString());
+
+        if (!entityBinding.getModelPath().isTopLevel()) {
+          entitySetup.add(
+              "new $T($S, $T.create($S)),\n",
+              ModelTarget.class,
+              schema.getTargetModel(),
+              ModelPath.class,
+              entityBinding.getModelPath().getParent().toString());
+        }
+
+        entitySetup.add(
+            "$T::builder,\n",
+            Models.getEntityClassName(
+                schema.getTargetModel(), entityBinding.getModelPath().name()));
+
+        entitySetup.add(
+            "builder -> (($T.Builder) builder).build()",
+            Models.getEntityClassName(
+                schema.getTargetModel(), entityBinding.getModelPath().name()));
+
+        if (!entityBinding.getModelPath().isTopLevel()) {
+          entitySetup.add(
+              ",\n(b, v) -> (($T.Builder) b).$L$L(($T) v)",
+              Models.getEntityClassName(
+                  schema.getTargetModel(), entityBinding.getModelPath().getParent().name()),
+              entityBinding.getOneOrMany() == MANY ? "add" : "set",
+              Models.getEntityClassName(
+                      schema.getTargetModel(), entityBinding.getModelPath().name())
+                  .simpleName(),
+              Models.getEntityClassName(
+                  schema.getTargetModel(), entityBinding.getModelPath().name()));
+        }
+
+        entitySetup.add("));\n\n");
+        entitySetup.unindent().unindent().unindent().unindent().unindent().unindent();
+
+        staticBlock.add(entitySetup.build());
+      }
+
+      for (XmlDataPoint dataPoint : schema.getDataPoints()) {
+
+        CodeBlock.Builder fieldSetup = CodeBlock.builder();
+
+        fieldSetup
+            .add("FIELD_SETUP_MAPPING.put(\n")
+            .indent()
+            .indent()
+            .add(
+                "$T.create($S),\n",
+                XmlPath.class,
+                dataPoint.getXmlModelBinding().getXmlPath().toString())
+            .add("() ->\n")
+            .indent()
+            .indent();
+
+        fieldSetup.add("new $T(\n", FieldSetup.class);
+
+        fieldSetup.indent().indent();
+
+        fieldSetup.add(
+            "new $T($S, $T.create($S)),\n",
+            ModelTarget.class,
+            schema.getTargetModel(),
+            ModelPath.class,
+            dataPoint.getXmlModelBinding().getModelPath().toString());
+
+        fieldSetup.add(
+            "new $T($S, $T.create($S)),\n",
+            ModelTarget.class,
+            schema.getTargetModel(),
+            ModelPath.class,
+            dataPoint.getXmlModelBinding().getModelPath().getParent().toString());
+
+        fieldSetup.add(
+            "(b, v) -> (($T.Builder) b).$L$L(new $T().parse(($T) v).value())));\n\n",
+            Models.getEntityClassName(
+                schema.getTargetModel(),
+                dataPoint.getXmlModelBinding().getModelPath().getParent().name()),
+            dataPoint.getXmlModelBinding().getOneOrMany() == MANY ? "add" : "set",
+            Models.getEntityClassName(
+                    schema.getTargetModel(), dataPoint.getXmlModelBinding().getModelPath().name())
+                .simpleName(),
+            dataPoint.getParser().getClass(),
+            String.class);
+
+        fieldSetup.unindent().unindent().unindent().unindent().unindent().unindent();
+
+        staticBlock.add(fieldSetup.build());
       }
     }
-
-    TreeSet<DataPoint> dataPoints = new TreeSet<>(model.getDataPoints());
-
-    for (DataPoint dataPoint : dataPoints) {
-      staticBlock.addStatement(
-          "PARENT_MAPPING.put($T.create($S), $T.create($S))",
-          XmlPath.class,
-          dataPoint.getXmlPath().toString(),
-          XmlPath.class,
-          modelPathToXmlPath.get(dataPoint.getModelPath().parent()).toString());
-
-      staticBlock.addStatement(
-          "SETTER_MAPPING.put($T.create($S), (b, v) -> (($T.Builder) b).$L(new $T().parse(($T) v).asNullable()))",
-          XmlPath.class,
-          dataPoint.getXmlPath().toString(),
-          ClassName.get(
-              MODEL_PACKAGE, simpleClassName(dataPoint.getModelPath().parent().name())),
-          joinNames(
-              dataPoint.getOneOrMany() == OneOrMany.ONE ? "set" : "add",
-              dataPoint.getModelPath().name()),
-          ClassName.get(dataPoint.getParser().getClass()),
-          ClassName.get(String.class));
-    }
-
     type.addStaticBlock(staticBlock.build());
 
     type.addAnnotation(
@@ -180,7 +213,7 @@ public class ParserGenerator {
             .build());
 
     TypeSpec typeSpec = type.build();
-    JavaFile javaFile = JavaFile.builder(PACKAGE, typeSpec).build();
+    JavaFile javaFile = JavaFile.builder(TARGET_PACKAGE, typeSpec).build();
 
     Path actualTargetDir = targetDirectory.resolve(javaFile.packageName.replace(".", "/"));
     try {
@@ -194,13 +227,5 @@ public class ParserGenerator {
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
-  }
-
-  private Object joinNames(String name1, String name2) {
-    return name1 + LOWER_CAMEL.to(UPPER_CAMEL, name2);
-  }
-
-  private String simpleClassName(String entityName) {
-    return LOWER_CAMEL.to(UPPER_CAMEL, entityName);
   }
 }

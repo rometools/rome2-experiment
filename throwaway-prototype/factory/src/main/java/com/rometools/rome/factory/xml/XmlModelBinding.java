@@ -1,20 +1,20 @@
 package com.rometools.rome.factory.xml;
 
 import com.rometools.rome.common.xml.XmlPath;
-import com.rometools.rome.factory.generator.ModelPath;
-import com.rometools.rome.factory.generator.OneOrMany;
+import com.rometools.rome.common.model.ModelPath;
+import com.rometools.rome.factory.model.OneOrMany;
 import java.util.Comparator;
 
-public class EntityBinding implements Comparable<EntityBinding> {
+public class XmlModelBinding implements Comparable<XmlModelBinding> {
 
-  private static final Comparator<EntityBinding> COMPARATOR =
-      Comparator.comparing(EntityBinding::getXmlPath).thenComparing(EntityBinding::getModelPath);
+  private static final Comparator<XmlModelBinding> COMPARATOR =
+      Comparator.comparing(XmlModelBinding::getXmlPath).thenComparing(XmlModelBinding::getModelPath);
 
   private final OneOrMany oneOrMany;
   private XmlPath xmlPath;
   private ModelPath modelPath;
 
-  public EntityBinding(XmlPath xmlPath, ModelPath modelPath, OneOrMany oneOrMany) {
+  public XmlModelBinding(XmlPath xmlPath, ModelPath modelPath, OneOrMany oneOrMany) {
     this.xmlPath = xmlPath;
     this.modelPath = modelPath;
     this.oneOrMany = oneOrMany;
@@ -33,7 +33,7 @@ public class EntityBinding implements Comparable<EntityBinding> {
   }
 
   @Override
-  public int compareTo(EntityBinding other) {
+  public int compareTo(XmlModelBinding other) {
     return COMPARATOR.compare(this, other);
   }
 }

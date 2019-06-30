@@ -1,23 +1,14 @@
 package com.rometools.rome.common.parser;
 
-import com.rometools.rome.common.value.StringValue;
-
-public class StringParser implements Parser<StringValue> {
-
-  public static final StringParser INSTANCE = new StringParser();
+public class StringParser implements Parser<String> {
 
   @Override
-  public Class<StringValue> getResultClass() {
-    return StringValue.class;
+  public Class<String> getResultClass() {
+    return String.class;
   }
 
   @Override
-  public StringValue parse(String input) {
-    return StringValue.ofNullable(input);
-  }
-
-  @Override
-  public StringValue none() {
-    return StringValue.none();
+  public ParseResult<String> parse(String input) {
+    return new ParseResult<>(input);
   }
 }

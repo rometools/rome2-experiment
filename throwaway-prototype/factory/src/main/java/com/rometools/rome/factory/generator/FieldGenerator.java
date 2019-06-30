@@ -2,12 +2,12 @@ package com.rometools.rome.factory.generator;
 
 import static com.google.common.base.CaseFormat.LOWER_CAMEL;
 import static com.google.common.base.CaseFormat.UPPER_CAMEL;
-import static com.rometools.rome.factory.generator.OneOrMany.MANY;
-import static com.rometools.rome.factory.generator.OneOrMany.ONE;
+import static com.rometools.rome.factory.model.OneOrMany.MANY;
+import static com.rometools.rome.factory.model.OneOrMany.ONE;
 
-import com.rometools.rome.common.value.DateTimeValue;
-import com.rometools.rome.common.value.IntValue;
-import com.rometools.rome.common.value.StringValue;
+import com.rometools.rome.common.value.Values;
+import com.rometools.rome.factory.model.Model;
+import com.rometools.rome.factory.model.Models;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
@@ -16,25 +16,16 @@ import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import javax.lang.model.element.Modifier;
 
 public class FieldGenerator {
 
-  public static final HashMap<Class<?>, TypeName> VALUE_TYPE_TO_RAW = new HashMap<>();
-
-  static {
-    VALUE_TYPE_TO_RAW.put(StringValue.class, TypeName.get(String.class));
-    VALUE_TYPE_TO_RAW.put(IntValue.class, TypeName.get(Integer.class));
-    VALUE_TYPE_TO_RAW.put(DateTimeValue.class, TypeName.get(ZonedDateTime.class));
-  }
-
   private final ModelGenerator modelGenerator;
-  private final Field field;
+  private final Model model;
+  private final Model.Field field;
   private final ClassName mainType;
   private final TypeSpec.Builder mainClass;
   private final MethodSpec.Builder mainClassConstructor;
@@ -46,7 +37,8 @@ public class FieldGenerator {
 
   public FieldGenerator(
       ModelGenerator modelGenerator,
-      Field field,
+      Model model,
+      Model.Field field,
       ClassName mainType,
       TypeSpec.Builder mainClass,
       MethodSpec.Builder mainClassConstructor,
@@ -56,6 +48,7 @@ public class FieldGenerator {
       CodeBlock.Builder buildMethodBody,
       boolean isFirst) {
     this.modelGenerator = modelGenerator;
+    this.model = model;
     this.field = field;
     this.mainType = mainType;
     this.mainClass = mainClass;
@@ -323,14 +316,14 @@ public class FieldGenerator {
   }
 
   private ClassName getEntityType() {
-    return modelGenerator.getEntityClassName(field.getName());
+    return Models.getEntityClassName(model.getName(), field.getName());
   }
 
   private TypeName getValueRawType() {
-    return VALUE_TYPE_TO_RAW.getOrDefault(field.getType(), getValueType());
+    return ClassName.get(field.getType());
   }
 
-  private TypeName getValueType() {
-    return ClassName.get(field.getType());
+  private ClassName getValueType() {
+    return ClassName.get(Values.getValueClass(field.getType()));
   }
 }

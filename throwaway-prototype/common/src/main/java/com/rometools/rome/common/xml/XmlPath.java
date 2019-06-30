@@ -13,8 +13,8 @@ public class XmlPath implements Comparable<XmlPath> {
 
   public static final XmlPath ROOT = new XmlPath(Collections.emptyList(), false);
 
-  private List<String> hierarchy;
-  private boolean isAttribute;
+  private final List<String> hierarchy;
+  private final boolean isAttribute;
 
   public XmlPath(List<String> hierarchy, boolean isAttribute) {
     this.hierarchy = hierarchy;

@@ -1,23 +1,14 @@
 package com.rometools.rome.common.parser;
 
-import com.rometools.rome.common.value.IntValue;
-
-public class IntParser implements Parser<IntValue> {
-
-  public static final IntParser INSTANCE = new IntParser();
+public class IntParser implements Parser<Integer> {
 
   @Override
-  public Class<IntValue> getResultClass() {
-    return IntValue.class;
+  public Class<Integer> getResultClass() {
+    return Integer.class;
   }
 
   @Override
-  public IntValue parse(String input) {
-    return IntValue.ofNullable(Integer.valueOf(input));
-  }
-
-  @Override
-  public IntValue none() {
-    return IntValue.none();
+  public ParseResult<Integer> parse(String input) {
+    return new ParseResult<>(Integer.valueOf(input));
   }
 }

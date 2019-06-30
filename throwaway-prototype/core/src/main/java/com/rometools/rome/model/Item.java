@@ -10,11 +10,11 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import javax.annotation.Generated;
+import javax.annotation.processing.Generated;
 
 @Generated(
-    value = "com.rometools.rome.factory.generator.EntityGenerator",
-    date = "2019-03-23T07:02:53.941Z"
+    value = "com.rometools.rome.factory.generator.ModelGenerator",
+    date = "2019-06-30T10:02:08.195544Z"
 )
 public class Item {
   private final String description;

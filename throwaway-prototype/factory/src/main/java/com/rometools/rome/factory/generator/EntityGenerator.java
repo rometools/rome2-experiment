@@ -1,30 +1,42 @@
 package com.rometools.rome.factory.generator;
 
-import com.squareup.javapoet.AnnotationSpec;
+import com.rometools.rome.common.model.ModelId;
+import com.rometools.rome.factory.model.Model;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
+import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.ParameterSpec;
+import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
-import java.time.Instant;
+import com.squareup.javapoet.TypeVariableName;
+import java.util.Map;
 import java.util.TreeSet;
-import javax.annotation.Generated;
 import javax.lang.model.element.Modifier;
 
 public class EntityGenerator {
 
   private final ModelGenerator modelGenerator;
+  private final Model model;
   private final Model.Entity entity;
   private final ClassName mainClassName;
+  private final boolean inner;
 
   public EntityGenerator(
-      ModelGenerator modelGenerator, Model.Entity entity, ClassName mainClassName) {
+      ModelGenerator modelGenerator,
+      Model model,
+      Model.Entity entity,
+      ClassName mainClassName,
+      boolean inner) {
     this.modelGenerator = modelGenerator;
+    this.model = model;
     this.entity = entity;
     this.mainClassName = mainClassName;
+    this.inner = inner;
   }
 
-  public TypeSpec generate() {
+  public TypeSpec.Builder generate() {
     TypeSpec.Builder mainClass = TypeSpec.classBuilder(mainClassName).addModifiers(Modifier.PUBLIC);
 
     MethodSpec.Builder mainClassConstructor = MethodSpec.constructorBuilder();
@@ -55,12 +67,13 @@ public class EntityGenerator {
             .addStatement("$T result = new $T()", StringBuilder.class, StringBuilder.class)
             .addStatement("result.append($S)", "{");
 
-    TreeSet<Field> fields = new TreeSet<>(entity.getFields());
+    TreeSet<Model.Field> fields = new TreeSet<>(entity.getFields());
 
     boolean isFirst = true;
-    for (Field field : fields) {
+    for (Model.Field field : fields) {
       new FieldGenerator(
               modelGenerator,
+              model,
               field,
               mainClassName,
               mainClass,
@@ -73,6 +86,23 @@ public class EntityGenerator {
           .generate();
 
       isFirst = false;
+    }
+
+    if (entity.getName().equals("feed")) {
+      mainClassConstructor.addStatement("this._models = _models");
+
+      builderClass.addField(
+          ParameterizedTypeName.get(Map.class, ModelId.class, Object.class), "_models");
+
+      builderClass.addMethod(
+          MethodSpec.methodBuilder("_setModels")
+              .addModifiers(Modifier.PUBLIC)
+              .addParameter(
+                  ParameterizedTypeName.get(Map.class, ModelId.class, Object.class), "_models")
+              .addStatement("this._models = _models")
+              .build());
+
+      buildMethodBody.add(",\n_models");
     }
 
     builderClass.addMethod(
@@ -91,6 +121,14 @@ public class EntityGenerator {
             .addStatement("return new $T()", mainClassName.nestedClass("Builder"))
             .build());
 
+    if (entity.getName().equals("feed")) {
+      mainClassConstructor.addParameter(
+          ParameterSpec.builder(
+                  ParameterizedTypeName.get(Map.class, ModelId.class, Object.class),
+                  "_models",
+                  Modifier.FINAL)
+              .build());
+    }
     mainClass.addMethod(mainClassConstructor.build());
 
     mainClass.addMethod(
@@ -112,12 +150,28 @@ public class EntityGenerator {
             .addStatement("return result.toString()")
             .build());
 
-    mainClass.addAnnotation(
-        AnnotationSpec.builder(Generated.class)
-            .addMember("value", "$S", getClass().getName())
-            .addMember("date", "$S", Instant.now().toString())
-            .build());
+    if (entity.getName().equals("feed")) {
+      mainClass.addField(
+          FieldSpec.builder(
+                  ParameterizedTypeName.get(Map.class, ModelId.class, Object.class),
+                  "_models",
+                  Modifier.PRIVATE,
+                  Modifier.FINAL)
+              .build());
 
-    return mainClass.build();
+      TypeVariableName typeVariable = TypeVariableName.get("T");
+
+      mainClass.addMethod(
+          MethodSpec.methodBuilder("as")
+              .addModifiers(Modifier.PUBLIC)
+              .addTypeVariable(typeVariable)
+              .addParameter(
+                  ParameterizedTypeName.get(ClassName.get(ModelId.class), typeVariable), "modelId")
+              .addStatement("return modelId.cast(_models.get(modelId))")
+              .returns(typeVariable)
+              .build());
+    }
+
+    return mainClass;
   }
 }

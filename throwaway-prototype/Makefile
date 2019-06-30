@@ -1,4 +1,4 @@
-.PHONY: build test model
+.PHONY: build test generate
 
 MAVEN = $(shell mvn --version >/dev/null 2>&1 && echo "mvn")
 

@@ -8,11 +8,11 @@ import java.lang.Override;
 import java.lang.String;
 import java.lang.StringBuilder;
 import java.util.Objects;
-import javax.annotation.Generated;
+import javax.annotation.processing.Generated;
 
 @Generated(
-    value = "com.rometools.rome.factory.generator.EntityGenerator",
-    date = "2019-03-23T07:02:53.931Z"
+    value = "com.rometools.rome.factory.generator.ModelGenerator",
+    date = "2019-06-30T10:02:08.182418Z"
 )
 public class Enclosure {
   private final Integer length;

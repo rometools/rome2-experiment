@@ -22,7 +22,7 @@ public class Rome {
     this.writeFormat = writeFormat;
   }
 
-  static Rome minimal() {
+  static Rome standard() {
     return new Builder().build();
   }
 

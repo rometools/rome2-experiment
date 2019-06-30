@@ -1,4 +1,4 @@
-package com.rometools.rome.factory.generator;
+package com.rometools.rome.common.model;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -9,7 +9,7 @@ public class ModelPath implements Comparable<ModelPath> {
 
   private static final Comparator<ModelPath> COMPARATOR = Comparator.comparing(ModelPath::toString);
 
-  private List<String> hierarchy;
+  private final List<String> hierarchy;
 
   private ModelPath(List<String> hierarchy) {
     this.hierarchy = hierarchy;
@@ -19,7 +19,7 @@ public class ModelPath implements Comparable<ModelPath> {
     return new ModelPath(Arrays.asList(hierarchy.substring(1).split("/")));
   }
 
-  public ModelPath parent() {
+  public ModelPath getParent() {
     if (hierarchy.size() == 1) {
       return null;
     }

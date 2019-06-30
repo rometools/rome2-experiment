@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Test feed title</title>
+  <entry>
+    <title>Test item title</title>
+    <summary>Test item summary</summary>
+    <author>
+      <name>Test author</name>
+      <uri>https://test.example.com/author-uri</uri>
+      <email>test@example.com</email>
+    </author>
+    <link href="https://test.example.com/item-link"/>
+  </entry>
+</feed>

@@ -1,20 +1,20 @@
 package com.rometools.rome;
 
-import static com.google.common.io.Resources.getResource;
-import static com.google.common.io.Resources.toByteArray;
 import static org.junit.Assert.assertEquals;
 
+import com.rometools.rome.model.Atom;
 import com.rometools.rome.model.Enclosure;
 import com.rometools.rome.model.Feed;
 import com.rometools.rome.model.Image;
 import com.rometools.rome.model.Item;
+import com.rometools.rome.model.Models;
 import java.time.ZonedDateTime;
 import org.junit.Test;
 
 public class RomeTest {
 
   @Test
-  public void test() throws Exception {
+  public void rssMainModel() throws Exception {
     Feed expected =
         Feed.builder()
             .setTitle("Test feed title")
@@ -49,7 +49,44 @@ public class RomeTest {
                     .build())
             .build();
 
-    Feed actual = Rome.minimal().read(toByteArray(getResource(getClass(), "test.xml")));
+    Feed actual = Rome.standard().read(getClass().getResourceAsStream("rss.xml"));
+
+    assertEquals(expected, actual);
+  }
+
+  @Test
+  public void atomSeparateModel() throws Exception {
+    Atom.Feed expected =
+        Atom.Feed.builder()
+            .setTitle("Test feed title")
+            .addItem(
+                Atom.Item.builder()
+                    .setTitle("Test item title")
+                    .setSummary("Test item summary")
+                    .addAuthor(
+                        Atom.Author.builder()
+                            .setName("Test author")
+                            .setUri("https://test.example.com/author-uri")
+                            .setEmail("test@example.com")
+                            .build())
+                    .build())
+            .build();
+
+    Atom.Feed actual =
+        Rome.standard().read(getClass().getResourceAsStream("atom.xml")).as(Models.ATOM);
+
+    assertEquals(expected, actual);
+  }
+
+  @Test
+  public void atomInMainModel() throws Exception {
+    Feed expected =
+        Feed.builder()
+            .setTitle("Test feed title")
+            .addItem(Item.builder().setTitle("Test item title").build())
+            .build();
+
+    Feed actual = Rome.standard().read(getClass().getResourceAsStream("atom.xml"));
 
     assertEquals(expected, actual);
   }

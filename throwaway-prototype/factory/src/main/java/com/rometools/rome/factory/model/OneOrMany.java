@@ -1,4 +1,4 @@
-package com.rometools.rome.common;
+package com.rometools.rome.factory.model;
 
 public enum OneOrMany {
   ONE,

@@ -1,5 +1,6 @@
 package com.rometools.rome.model;
 
+import com.rometools.rome.common.model.ModelId;
 import com.rometools.rome.common.value.DateTimeValue;
 import com.rometools.rome.common.value.StringValue;
 import java.lang.Object;
@@ -9,12 +10,13 @@ import java.lang.StringBuilder;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
-import javax.annotation.Generated;
+import javax.annotation.processing.Generated;
 
 @Generated(
-    value = "com.rometools.rome.factory.generator.EntityGenerator",
-    date = "2019-03-23T07:02:53.899Z"
+    value = "com.rometools.rome.factory.generator.ModelGenerator",
+    date = "2019-06-30T10:02:08.210572Z"
 )
 public class Feed {
   private final String description;
@@ -27,13 +29,20 @@ public class Feed {
 
   private final String title;
 
+  private final ZonedDateTime updated;
+
+  private final Map<ModelId, Object> _models;
+
   Feed(final String description, final Image image, final List<Item> itemList,
-      final ZonedDateTime published, final String title) {
+      final ZonedDateTime published, final String title, final ZonedDateTime updated,
+      final Map<ModelId, Object> _models) {
     this.description = description;
     this.image = image;
     this.itemList = itemList;
     this.published = published;
     this.title = title;
+    this.updated = updated;
+    this._models = _models;
   }
 
   public StringValue getDescription() {
@@ -89,6 +98,14 @@ public class Feed {
     return title != null;
   }
 
+  public DateTimeValue getUpdated() {
+    return DateTimeValue.ofNullable(updated);
+  }
+
+  public boolean hasUpdated() {
+    return updated != null;
+  }
+
   public static Builder builder() {
     return new Builder();
   }
@@ -108,7 +125,8 @@ public class Feed {
         && Objects.equals(image, that.image)
         && Objects.equals(itemList, that.itemList)
         && Objects.equals(published, that.published)
-        && Objects.equals(title, that.title);
+        && Objects.equals(title, that.title)
+        && Objects.equals(updated, that.updated);
   }
 
   @Override
@@ -125,8 +143,14 @@ public class Feed {
     result.append(String.valueOf(published));
     result.append(",\"title\":");
     result.append("\"" + title + "\"");
+    result.append(",\"updated\":");
+    result.append(String.valueOf(updated));
     result.append("}");
     return result.toString();
+  }
+
+  public <T> T as(ModelId<T> modelId) {
+    return modelId.cast(_models.get(modelId));
   }
 
   public static class Builder {
@@ -139,6 +163,10 @@ public class Feed {
     private ZonedDateTime published;
 
     private String title;
+
+    private ZonedDateTime updated;
+
+    Map<ModelId, Object> _models;
 
     public Builder setDescription(final String description) {
       this.description = description;
@@ -203,13 +231,29 @@ public class Feed {
       return this;
     }
 
+    public Builder setUpdated(final ZonedDateTime updated) {
+      this.updated = updated;
+      return this;
+    }
+
+    public Builder clearUpdated() {
+      this.updated = null;
+      return this;
+    }
+
+    public void _setModels(Map<ModelId, Object> _models) {
+      this._models = _models;
+    }
+
     public Feed build() {
       return new Feed(
         description,
         image,
         itemList,
         published,
-        title
+        title,
+        updated,
+        _models
       );
     }
   }
